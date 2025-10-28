@@ -53,8 +53,8 @@ function params = ImportParameters ()
     params.Delta_x = params.L_dh / params.N;
     params.k_dh = 0.4;
     params.G_dh_thermal = 0.3; %0.3
-    params.C_seg = params.rho_w * params.A * params.cp * params.Delta_x;
+    params.C_seg = params.rho_w * params.A * params.cp;
     params.k_prime = params.k_dh / (params.rho_w * params.cp);
-    params.alpha = params.G_dh_thermal * params.Delta_x / (params.C_seg);
+    params.alpha = params.G_dh_thermal / (params.C_seg);
 
 end 

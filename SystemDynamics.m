@@ -91,20 +91,25 @@ classdef SystemDynamics
             T_dot = zeros(N, 1);
         
             % Boundary condition
-            T_0 = T_inlet;
+            T_inlet;
         
             % Loop over segments
             for i = 1:N
                 T_i = T(i);
-        
+                
+                % Impose boundary condition on first segment
                 if i == 1
-                    T_i_minus_1 = T_0;
+                    T_i_minus_1 = T_inlet;
+                % Define for other segments
                 else
                     T_i_minus_1 = T(i-1);
                 end
         
+                % Impose boundary condition on last segment
+                % i.e zero-gradient at 'outlet'
                 if i == N
-                    T_i_plus_1 = T_i;  % zero-gradient (outflow)
+                    T_i_plus_1 = T_i;  
+                % Define for other segments
                 else
                     T_i_plus_1 = T(i+1);
                 end
