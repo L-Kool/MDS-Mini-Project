@@ -19,7 +19,7 @@ t_span_off = [0 3600];
 options = odeset('RelTol', 1e-4, 'AbsTol', 1e-5, 'Stats', 'on');
 x0_off = [x_sol_on(end)]; 
 
-inputs_off.V_in = 580;         
+inputs_off.V_in = 0;         
 inputs_off.Sp_state = 'OPEN';
 
 % Running simulation with pump OFF

@@ -10,10 +10,10 @@ function params = ImportParameters ()
     % LUMI parameters
     params.V_w_lumi = 10;          
     params.C_lumi = params.rho_w * params.cp * params.V_w_lumi;
-    params.R_ex_lumi = 3e-4;
+    params.R_ex_lumi = 2.8e-4;
     
     % Building parameters 
-    params.V_water_B = 2;
+    params.V_water_B = 3;
     params.C_B_office = 5e7;
     params.C_B_res = 2e7;
     params.R_B_office_0 = 0.006;
@@ -21,13 +21,13 @@ function params = ImportParameters ()
     params.C_rad = params.rho_w * params.cp * params.V_water_B; 
     params.R_rad_low = 0.008;  
     params.R_rad_high = 0.5;
-    params.R_ex_B_low = 0.0005; %0.001
+    params.R_ex_B_low = 0.0005;
     params.R_ex_B_high = 0.2;
     params.R_wall_ij = 0.02;
     
     % Pump & Circuit parameters
     params.R_dh_flow = 1e7; %1e7;
-    params.k_pump = 4e-4; %6e-4 1e-3
+    params.k_pump = 2e-4; %6e-4 1e-3
     params.K_dh_motor = 3.8;
     params.R_dh_motor = 0.6;
     params.C_dh_motor = 1e-3;
@@ -49,10 +49,10 @@ function params = ImportParameters ()
     % Load Piping parameters
     params.L_dh = 1500;
     params.A = 0.08;
-    params.N = 100; % 100 pipe segments
+    params.N = 100;
     params.Delta_x = params.L_dh / params.N;
     params.k_dh = 0.4;
-    params.G_dh_thermal = 0.3; %0.3
+    params.G_dh_thermal = 0.3; 
     params.C_seg = params.rho_w * params.A * params.cp;
     params.k_prime = params.k_dh / (params.rho_w * params.cp);
     params.alpha = params.G_dh_thermal / (params.C_seg);

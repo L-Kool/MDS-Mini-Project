@@ -33,9 +33,20 @@ options = odeset('RelTol', 1e-4, 'AbsTol', 1e-5, 'MaxStep', 7, 'Stats', 'on');
 [t_sol, x_sol] = ode15s(@(t, x) SystemDynamics.piping_dynamics(t, x, params, inputs), ...
                                     t_span, x0, options);
 
+% t0 = 1;
+% t1 = round(length(t_sol) / 4);
+% t2 = round(2*t1);
+% t3 = round(3*t1);
+% t4 = round(4*t1);
+% t_array = [t0 t1 t2 t3 t4];
+
 % Plotting results
 figure;
 x_pipe = linspace(params.Delta_x, params.L_dh, params.N);
+% for i = t_array
+%     plot(x_pipe, x_sol(i, :) - 273.15, 'LineWidth', 3);
+%     hold on
+% end 
 plot(x_pipe, x_sol(end, :) - 273.15, 'LineWidth', 3);
 title('Piping Temperature Profile at t = 24 hours', 'FontSize', 14);
 xlabel('Pipe Position (m)', 'FontSize', 14);

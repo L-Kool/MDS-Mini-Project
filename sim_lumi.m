@@ -5,12 +5,12 @@ clear; clc; close all;
 params = ImportParameters();
 
 % Defining simulation conditions
-t_span = [0 3600 *24]; % Simulate for 1 hour
+t_span = [0 3600 *48]; % Simulate for 1 hour
 T_initial = 303.15; % Initial temp (30 C)
 x0 = T_initial;
 
 % Defining inputs for isolated simulation
-inputs.Q_lumi = 1e5;  % 0.5 MW heat load
+inputs.Q_lumi = [1e5 0.8e5];  % 0.5 MW heat load
 inputs.T_out = 313.15; % 40 C 
 
 % Running the simulation
@@ -21,7 +21,8 @@ figure;
 plot(t_sol / 3660, x_sol(:, 1) - 273.15, 'LineWidth', 3);
 title('LUMI Cooling Circuit Temperature', 'FontSize', 14);
 xlabel('Time (hours)', 'FontSize', 14);
-xlim([0 24]);
+xlim([0 48]);
+ylim([20 75]);
 ylabel('Temperature T_{LUMI} (C)', 'FontSize', 14);
 legend('Temperature', 'FontSize', 14);
 grid on;

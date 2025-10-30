@@ -3,15 +3,21 @@
 % Importing all parameters
 params = ImportParameters();
 
-% Defining simulation conditions
+%% Defining simulation conditions
+
+% Defining time span
+t_span = [0 3600*48]; % 48 hours
 
 % Imposing that pumps are constantly ON
 params.SIM.Pump_B_State = 'ON';
 params.SIM.Pump_Sp_State = 'CLOSED';
 
 % Providing constant flow to reservoir so it will not deplete
-params.SIM.w_in = 1.2; % Constant river flow
-params.SIM.Q_lumi = 1.5e5; % 2MW constant heat load
+w_in_sim = [1.8 1.2];
+params.SIM.w_in = w_in_sim; % Constant river flow
+
+Q_lumi_sim = [1.9e5 1.2e5];
+params.SIM.Q_lumi = Q_lumi_sim; % 2MW constant heat load
 
 % Defining locations of building along segmented pipe
 params.pipe_nodes.B1 = params.N / 5;
@@ -21,7 +27,7 @@ params.pipe_nodes.B4 = 4 * params.N/5;
 
 % Defining initial state of super vector
 x0 = zeros(12 + params.N, 1);
-x0(1) = 303.15; % T_LUMI (80 C) 353
+x0(1) = 353.15; % T_LUMI (80 C) 353
 x0(2:2:8) = 293.15; % T_B (20 C)
 x0(3:2:9) = 303.15; % T_rad (30 C)
 x0(10) = 590;     % Vm (steady state)
@@ -29,15 +35,12 @@ x0(11) = 12;      % h_res (12m)
 x0(12) = params.C_hydro_battery; % q_batt (full)
 x0(13:end) = 323.15; % T_pipe (70 C)
 
-% Running the simulations
-t_span = [0 3600*48]; % 12 hours
-options = odeset('RelTol', 1e-4, 'AbsTol', 1e-5, 'MaxStep', 7, 'Stats', 'on');
-
-% Use ode15s as it fixed the pipe instability
+%% Running the simulations
+options = odeset('RelTol', 1e-4, 'AbsTol', 1e-5, 'MaxStep', 3, 'Stats', 'on');
 [t_sol, x_sol] = ode15s(@(t, x) complete_dynamics(t, x, params), ...
                                     t_span, x0, options);
 
-% Post-process, calculating outputs
+%% Post-process, calculating outputs
 h_sol = x_sol(:, 11);
 w_out_sol = zeros(size(t_sol));
 P_mech = zeros(size(t_sol)); % Generator Power
@@ -64,7 +67,7 @@ w_dh_sol = params.k_pump * omega_pump_sol;
 v_sol = w_dh_sol / params.A;
 
 
-% Plotting results
+%% Plotting results
 close all;
 figure(1);
 subplot(2,2,1);
@@ -74,8 +77,9 @@ xlabel('Time (hr)', 'FontSize', 14);
 ylabel('Temp (C)', 'FontSize', 14);
 grid on;
 
+% Pipe inlet and outlet temperature
 subplot(2,2,2);
-T_pipe_in = x_sol(:,1) - 273.15;
+T_pipe_in = x_sol(:,13) - 273.15;
 T_pipe_out = x_sol(:, end) - 273.15;
 plot(t_sol/3600, T_pipe_out, 'LineWidth', 3);
 hold on;
@@ -83,9 +87,10 @@ plot(t_sol/3600, T_pipe_in, 'LineWidth', 3);
 title('Pipe Inlet and Outlet Temp', 'FontSize', 14);
 xlabel('Time (hr)', 'FontSize', 14); 
 ylabel('Temp (C)', 'FontSize', 14);
-legend('Outlet', 'Inlet')
+legend('Outlet', 'Inlet', 'FontSize', 14)
 grid on;
 
+% Building temperature
 subplot(2,2,3);
 plot(t_sol/3600, x_sol(:, 2) - 273.15, 'b', 'DisplayName', 'B1 (Office)', 'LineWidth', 3);
 hold on;
@@ -96,6 +101,7 @@ ylabel('Temp (C)', 'FontSize', 14);
 legend('FontSize', 14);
 grid on;
 
+% Radiator temperature
 subplot(2,2,4);
 T_rad_1 = x_sol(:,3) - 273.15;
 T_rad_2 = x_sol(:,5) - 273.15;
@@ -108,7 +114,7 @@ ylabel('Temp (C)', 'FontSize', 14);
 legend('FontSize', 14)
 grid on;
 
-
+% Plotting reservoir height and mech. power
 figure(2)
 subplot(2,1,1);
 plot(t_sol/3600, x_sol(:, 11), 'DisplayName', 'Reservoir height', 'LineWidth', 3);
@@ -126,6 +132,7 @@ ylabel('Power (W)', 'FontSize', 14);
 legend('FontSize', 14)
 legend; grid on;
 
+% Plotting temperature profiles
 % Extracing pipe temperatures
 T_pipe_sol = x_sol(:, 13:end); 
 times_sec = t_sol;            
@@ -145,9 +152,9 @@ selected_times_hr = times_sec(time_indices) / 3600;
 figure(3);
 hold on; 
 
-for i = 1:num_time_points
+for i = 2:num_time_points
     idx = time_indices(i);
-    temp_profile_C = T_pipe_sol(idx, :) - 273.15; % Convert to Celsius
+    temp_profile_C = T_pipe_sol(idx, :) - 273.15; 
     plot(x_pipe, temp_profile_C, 'LineWidth', 2, ...
          'DisplayName', sprintf('t = %.1f hr', selected_times_hr(i)));
 end
@@ -163,6 +170,7 @@ grid on;
 y_limits = ylim; 
 building_nodes = [params.pipe_nodes.B1, params.pipe_nodes.B2, params.pipe_nodes.B3, params.pipe_nodes.B4];
 building_pos = x_pipe(building_nodes); 
+
 for i = 1:length(building_pos)
     line([building_pos(i) building_pos(i)], y_limits, 'Color', 'k', 'LineStyle', '--', 'HandleVisibility', 'off', 'LineWidth', 3);
     text(building_pos(i), y_limits(1) + 0.05*diff(y_limits), sprintf(' B%d', i), 'HorizontalAlignment', 'left');
@@ -219,17 +227,16 @@ function x_dot = complete_dynamics(t, x_total, params)
     
     % Calculating coupling equations
     
-    % --- PUMP & PIPE COUPLING ---
+    % PUMP & PIPE COUPLING 
     omega_pump = Vm / params.K_dh_motor;
     w_dh = params.k_pump * omega_pump;
     
-    % --- LUMI & PIPE COUPLING ---
+    % LUMI & PIPE COUPLING 
     T_dh_return = T_pipe(end);
     Q_ex_lumi = (T_lumi - T_dh_return) / params.R_ex_lumi;
     T_dh_inlet = T_dh_return + Q_ex_lumi / (w_dh * params.rho_w * params.cp + 1e-3);
 
-    disp(T_lumi)
-    % --- BUILDING & PIPE COUPLING (HEAT SINKS) ---
+    % BUILDING & PIPE COUPLING (HEAT SINKS) 
     T_pipe_B1 = T_pipe(params.pipe_nodes.B1);
     T_pipe_B2 = T_pipe(params.pipe_nodes.B2);
     T_pipe_B3 = T_pipe(params.pipe_nodes.B3);
@@ -247,7 +254,7 @@ function x_dot = complete_dynamics(t, x_total, params)
     Q_sinks_vec(params.pipe_nodes.B3) = Q_sink_B3;
     Q_sinks_vec(params.pipe_nodes.B4) = Q_sink_B4;
     
-    % --- SUPERVISOR LOGIC ---
+    % SUPERVISOR LOGIC 
     pump_B_state = params.SIM.Pump_B_State;
     pump_Sp_state = params.SIM.Pump_Sp_State;
     

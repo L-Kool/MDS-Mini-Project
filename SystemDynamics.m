@@ -10,9 +10,13 @@ classdef SystemDynamics
             C_lumi = params.C_lumi;         
             R_ex_lumi = params.R_ex_lumi;
             
-            % Unpacking inputs
-            Q_lumi = inputs.Q_lumi;             
-            T_out = inputs.T_out;     
+            % Unpacking inputs            
+            T_out = inputs.T_out; 
+            if t <= 24*3600
+                Q_lumi = inputs.Q_lumi(1);
+            else 
+                Q_lumi = inputs.Q_lumi(2);
+            end
 
             % Model
             Q_out = (T_lumi - T_out) / R_ex_lumi;
@@ -90,9 +94,6 @@ classdef SystemDynamics
         
             T_dot = zeros(N, 1);
         
-            % Boundary condition
-            T_inlet;
-        
             % Loop over segments
             for i = 1:N
                 T_i = T(i);
@@ -108,7 +109,7 @@ classdef SystemDynamics
                 % Impose boundary condition on last segment
                 % i.e zero-gradient at 'outlet'
                 if i == N
-                    T_i_plus_1 = T_i;  
+                    T_i_plus_1 = T_i_minus_1;  
                 % Define for other segments
                 else
                     T_i_plus_1 = T(i+1);
@@ -156,6 +157,12 @@ classdef SystemDynamics
         %% 5. HYDROPOWER RESERVOIR 
         function h_dot = reservoir_dynamics(t, h, params, inputs)
             
+            if t <= 24*3600
+                w_in = inputs.w_in(1);
+            else
+                w_in = inputs.w_in(2);
+            end 
+
             % Unpacking parameters
             A_res = params.A_res;
             rho_w = params.rho_w;
@@ -165,7 +172,7 @@ classdef SystemDynamics
             h_max = params.h_hydro_max;
             
             % Unpacking inputs
-            w_in = inputs.w_in;
+            % w_in = inputs.w_in;
             
             % Condition on minimum water level
             if h > h_min

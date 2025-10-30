@@ -5,12 +5,12 @@ clear; clc; close all;
 params = ImportParameters();
 
 % Defining simulation conditions
-t_span = [0 3600*24]; 
+t_span = [0 3600*48]; 
 x0 = 12;               
 
 % Defining inputs
 t_sim = linspace(t_span(1), t_span(end), 1000);
-inputs.w_in = 1.2;
+inputs.w_in = [1.8 1.2];
 
 
 % Run simulation
@@ -30,6 +30,9 @@ for i = 1:length(t_sol)
         
         % Calculate mechanical power
         P_mech(i) = params.eta_hydro_turbine * P_fluid;
+    else
+        w_out_sol(i) = 0; 
+        P_mech(i) = 0;    
     end
 end
 
@@ -48,11 +51,13 @@ legend('Water Level', 'Min/Max Levels', 'FontSize', 14);
 grid on;
 
 subplot(3, 1, 2);
-w_in_array = 1.2*ones(size(t_sol));
-plot(t_sol / 3600, w_in_array, 'DisplayName', 'Inflow (w_{in})', 'LineWidth', 2);
+w_in_1 = inputs.w_in(1)*ones(round(size(t_sol)/2));
+w_in_2 = inputs.w_in(2)*ones(round(size(t_sol)/2));
+w_in_array = horzcat(w_in_1, w_in_2);
+plot(t_sol / 3600, w_in_array(1:end-1), 'DisplayName', 'Inflow (w_{in})', 'LineWidth', 2);
 hold on;
 plot(t_sol / 3600, w_out_sol, 'DisplayName', 'Outflow (w_{out})', 'LineWidth', 2);
-ylim([0.5 1.3]);
+ylim([0.5 2]);
 title('Reservoir Flow Rates', 'FontSize', 14);
 xlabel('Time (hours)', 'FontSize', 14);
 ylabel('Flow Rate (m^3/s)', 'FontSize', 14);
