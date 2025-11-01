@@ -23,7 +23,7 @@ inputs_off.V_in = 0;
 inputs_off.Sp_state = 'OPEN';
 
 % Running simulation with pump OFF
-[t_sol_off, x_sol_off] = ode15s(@(t, x) SystemDynamics.pump_circuit_dynamics(t, x, params, inputs_off), ...
+[t_sol_off, x_sol_off] = ode45(@(t, x) SystemDynamics.pump_circuit_dynamics(t, x, params, inputs_off), ...
                                     t_span_off, x0_off);
 
 % Plotting results

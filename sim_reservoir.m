@@ -42,16 +42,18 @@ figure;
 subplot(3, 1, 1); 
 plot(t_sol / 3600, h_sol, 'b-', 'LineWidth', 2);
 hold on;
-yline(params.h_hydro_min, 'r--');
-yline(params.h_hydro_max, 'r--');
+yline(params.h_hydro_min, 'r--', 'LineWidth', 2);
+yline(params.h_hydro_max, 'r--', 'LineWidth', 2);
 title('Reservoir Level h(t)', 'FontSize', 14);
 xlabel('Time (hours)', 'FontSize', 14);
 ylabel('Height (m)', 'FontSize', 14);
+ylim([9 26])
+xlim([0 48]);
 legend('Water Level', 'Min/Max Levels', 'FontSize', 14);
 grid on;
 
 subplot(3, 1, 2);
-w_in_1 = inputs.w_in(1)*ones(round(size(t_sol)/2));
+w_in_1 = inputs.w_in(1)*ones(ceil(size(t_sol)/2));
 w_in_2 = inputs.w_in(2)*ones(round(size(t_sol)/2));
 w_in_array = horzcat(w_in_1, w_in_2);
 plot(t_sol / 3600, w_in_array(1:end-1), 'DisplayName', 'Inflow (w_{in})', 'LineWidth', 2);

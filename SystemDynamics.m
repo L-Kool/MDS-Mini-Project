@@ -11,7 +11,7 @@ classdef SystemDynamics
             R_ex_lumi = params.R_ex_lumi;
             
             % Unpacking inputs            
-            T_out = inputs.T_out; 
+            T_return = inputs.T_return; 
             if t <= 24*3600
                 Q_lumi = inputs.Q_lumi(1);
             else 
@@ -19,7 +19,7 @@ classdef SystemDynamics
             end
 
             % Model
-            Q_out = (T_lumi - T_out) / R_ex_lumi;
+            Q_out = (T_lumi - T_return) / R_ex_lumi;
             T_lumi_dot = (Q_lumi - Q_out) / C_lumi;
 
         end

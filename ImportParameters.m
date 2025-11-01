@@ -21,7 +21,7 @@ function params = ImportParameters ()
     params.C_rad = params.rho_w * params.cp * params.V_water_B; 
     params.R_rad_low = 0.008;  
     params.R_rad_high = 0.5;
-    params.R_ex_B_low = 0.0005;
+    params.R_ex_B_low = 0.0004;
     params.R_ex_B_high = 0.2;
     params.R_wall_ij = 0.02;
     
@@ -37,7 +37,7 @@ function params = ImportParameters ()
     
     % Hydro & Battery parameters
     params.A_res = 3000;
-    params.R_hydro_flow = 1.2e5; %7
+    params.R_hydro_flow = 1.2e5; 
     params.h_hydro_min = 10;
     params.h_hydro_max = 25;
     params.eta_hydro_turbine = 0.85;

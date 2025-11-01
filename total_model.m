@@ -33,10 +33,10 @@ x0(3:2:9) = 303.15; % T_rad (30 C)
 x0(10) = 590;     % Vm (steady state)
 x0(11) = 12;      % h_res (12m)
 x0(12) = params.C_hydro_battery; % q_batt (full)
-x0(13:end) = 323.15; % T_pipe (70 C)
+x0(13:end) = 318.15; % T_pipe (70 C)
 
 %% Running the simulations
-options = odeset('RelTol', 1e-4, 'AbsTol', 1e-5, 'MaxStep', 3, 'Stats', 'on');
+options = odeset('RelTol', 1e-4, 'AbsTol', 1e-5, 'MaxStep', 10, 'Stats', 'on');
 [t_sol, x_sol] = ode15s(@(t, x) complete_dynamics(t, x, params), ...
                                     t_span, x0, options);
 
@@ -75,6 +75,7 @@ plot(t_sol/3600, x_sol(:, 1) - 273.15, 'LineWidth', 3);
 title('LUMI Temperature', 'FontSize', 14); 
 xlabel('Time (hr)', 'FontSize', 14); 
 ylabel('Temp (C)', 'FontSize', 14);
+xlim([0 48]);
 grid on;
 
 % Pipe inlet and outlet temperature
@@ -87,17 +88,21 @@ plot(t_sol/3600, T_pipe_in, 'LineWidth', 3);
 title('Pipe Inlet and Outlet Temp', 'FontSize', 14);
 xlabel('Time (hr)', 'FontSize', 14); 
 ylabel('Temp (C)', 'FontSize', 14);
+xlim([0 48]);
 legend('Outlet', 'Inlet', 'FontSize', 14)
 grid on;
 
 % Building temperature
 subplot(2,2,3);
-plot(t_sol/3600, x_sol(:, 2) - 273.15, 'b', 'DisplayName', 'B1 (Office)', 'LineWidth', 3);
+plot(t_sol/3600, x_sol(:, 2) - 273.15, 'r', 'DisplayName', 'B1 (Office)', 'LineWidth', 3);
 hold on;
 plot(t_sol/3600, x_sol(:, 4) - 273.15, 'r', 'DisplayName', 'B2 (Res)', 'LineWidth', 3);
+plot(t_sol/3600, x_sol(:, 6) - 273.15, 'b--', 'DisplayName', 'B3 (Office)', 'LineWidth', 3);
+plot(t_sol/3600, x_sol(:, 8) - 273.15, 'b--', 'DisplayName', 'B4 (Res)', 'LineWidth', 3);
 title('Building Temperatures', 'FontSize', 14);
 xlabel('Time (hr)', 'FontSize', 14); 
 ylabel('Temp (C)', 'FontSize', 14);
+xlim([0 48]);
 legend('FontSize', 14);
 grid on;
 
@@ -105,12 +110,17 @@ grid on;
 subplot(2,2,4);
 T_rad_1 = x_sol(:,3) - 273.15;
 T_rad_2 = x_sol(:,5) - 273.15;
-plot(t_sol/3600, T_rad_1, 'LineStyle', '-', 'DisplayName', 'Radiator B1 (Office', 'LineWidth', 3);
+T_rad_3 = x_sol(:,7) - 273.15;
+T_rad_4 = x_sol(:,9) - 273.15;
+plot(t_sol/3600, T_rad_1, 'r', 'DisplayName', 'Radiator B1 (Office', 'LineWidth', 3);
 hold on
-plot(t_sol/3600, T_rad_2,  'LineStyle', '--', 'DisplayName', 'Radiator B2 (Res)', 'LineWidth', 3);
+plot(t_sol/3600, T_rad_2, 'r', 'DisplayName', 'Radiator B2 (Res)', 'LineWidth', 3);
+plot(t_sol/3600, T_rad_3, 'b--', 'DisplayName', 'Radiator B3 (Office)', 'LineWidth', 3);
+plot(t_sol/3600, T_rad_4, 'b--', 'DisplayName', 'Radiator B4 (Res)', 'LineWidth', 3);
 title('Radiator Temperatures', 'FontSize', 14);
 xlabel('Time (hr)', 'FontSize', 14); 
 ylabel('Temp (C)', 'FontSize', 14);
+xlim([0 48]);
 legend('FontSize', 14)
 grid on;
 
@@ -121,6 +131,7 @@ plot(t_sol/3600, x_sol(:, 11), 'DisplayName', 'Reservoir height', 'LineWidth', 3
 title('Reservoir Height', 'FontSize', 14);
 xlabel('Time (hr)', 'FontSize', 14); 
 ylabel('Height (m)', 'FontSize', 14);
+xlim([0 48]);
 legend('FontSize', 14)
 grid on;
 
@@ -129,6 +140,7 @@ plot(t_sol/3600, P_mech, 'DisplayName', 'Turbine mechanical power', 'LineWidth',
 title('Turbine mechanical power', 'FontSize', 14);
 xlabel('Time (hr)', 'FontSize', 14); 
 ylabel('Power (W)', 'FontSize', 14);
+xlim([0 48]);
 legend('FontSize', 14)
 legend; grid on;
 
@@ -172,7 +184,7 @@ building_nodes = [params.pipe_nodes.B1, params.pipe_nodes.B2, params.pipe_nodes.
 building_pos = x_pipe(building_nodes); 
 
 for i = 1:length(building_pos)
-    line([building_pos(i) building_pos(i)], y_limits, 'Color', 'k', 'LineStyle', '--', 'HandleVisibility', 'off', 'LineWidth', 3);
+    line([building_pos(i) building_pos(i)], y_limits, 'Color', 'k', 'LineStyle', '--', 'HandleVisibility', 'off', 'LineWidth', 2);
     text(building_pos(i), y_limits(1) + 0.05*diff(y_limits), sprintf(' B%d', i), 'HorizontalAlignment', 'left');
 end
 ylim(y_limits); 
@@ -270,7 +282,7 @@ function x_dot = complete_dynamics(t, x_total, params)
     
     % LUMI
     inputs_lumi.Q_lumi = params.SIM.Q_lumi;
-    inputs_lumi.T_out = T_dh_return; 
+    inputs_lumi.T_return = T_dh_return; 
     T_lumi_dot = SystemDynamics.lumi_dynamics(t, T_lumi, params, inputs_lumi);
     
     % Building 1

@@ -5,7 +5,7 @@ clear; clc; close all;
 params = ImportParameters();
 
 % Simulation conditions
-t_span = [0 86400]; % Simulate for 24 hours
+t_span = [0 3600*48]; % Simulate for 48 hours
 x0 = [293.15; 303.15]; % Initial T_B = 20C, T_rad = 30C
 
 % Defining inputs
@@ -36,7 +36,7 @@ plot(t_sol_office_on / 3600, x_sol_office_on - 273.15, 'LineWidth', 2);
 title('Building 1 (Office), pump ON ', 'FontSize', 14);
 xlabel('Time (hours)', 'FontSize', 14);
 ylabel('Temperature (C)', 'FontSize', 14);
-xlim([0 24]);
+xlim([0 48]);
 legend('T_{Building}', 'T_{Radiator}', 'FontSize', 14);
 grid on;
 
@@ -46,7 +46,7 @@ plot(t_sol_res_on / 3600, x_sol_res_on - 273.15, 'LineWidth', 2);
 title('Building 2 (Residential), pump ON ', 'FontSize', 14);
 xlabel('Time (hours)', 'FontSize', 14);
 ylabel('Temperature (C)', 'FontSize', 14);
-xlim([0 24]);
+xlim([0 48]);
 legend('T_{Building}', 'T_{Radiator}', 'FontSize', 14);
 grid on;
 
@@ -56,7 +56,7 @@ plot(t_sol_office_off / 3600, x_sol_office_off - 273.15, 'LineWidth', 2);
 title('Building 1 (Office), pumps OFF ', 'FontSize', 14);
 xlabel('Time (hours)','FontSize', 14);
 ylabel('Temperature (C)', 'FontSize', 14);
-xlim([0 24]);
+xlim([0 48]);
 legend('T_{Building}', 'T_{Radiator}', 'FontSize', 14);
 grid on;
 
@@ -66,6 +66,6 @@ plot(t_sol_res_off / 3600, x_sol_res_off - 273.15, 'LineWidth', 2);
 title('Building 2 (Residential), pumps OFF ', 'FontSize', 14);
 xlabel('Time (hours)', 'FontSize', 14);
 ylabel('Temperature (C)', 'FontSize', 14);
-xlim([0 24]);
+xlim([0 48]);
 legend('T_{Building}', 'T_{Radiator}', 'FontSize', 14);
 grid on;
