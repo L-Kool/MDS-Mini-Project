@@ -70,7 +70,7 @@ v_sol = w_dh_sol / params.A;
 %% Plotting results
 close all;
 figure(1);
-subplot(2,2,1);
+subplot(2,1,1);
 plot(t_sol/3600, x_sol(:, 1) - 273.15, 'LineWidth', 3);
 title('LUMI Temperature', 'FontSize', 14); 
 xlabel('Time (hr)', 'FontSize', 14); 
@@ -79,7 +79,7 @@ xlim([0 48]);
 grid on;
 
 % Pipe inlet and outlet temperature
-subplot(2,2,2);
+subplot(2,1,2);
 T_pipe_in = x_sol(:,13) - 273.15;
 T_pipe_out = x_sol(:, end) - 273.15;
 plot(t_sol/3600, T_pipe_out, 'LineWidth', 3);
@@ -93,12 +93,13 @@ legend('Outlet', 'Inlet', 'FontSize', 14)
 grid on;
 
 % Building temperature
-subplot(2,2,3);
+figure(2);
+subplot(2,1,1);
 plot(t_sol/3600, x_sol(:, 2) - 273.15, 'r', 'DisplayName', 'B1 (Office)', 'LineWidth', 3);
 hold on;
-plot(t_sol/3600, x_sol(:, 4) - 273.15, 'r', 'DisplayName', 'B2 (Res)', 'LineWidth', 3);
-plot(t_sol/3600, x_sol(:, 6) - 273.15, 'b--', 'DisplayName', 'B3 (Office)', 'LineWidth', 3);
-plot(t_sol/3600, x_sol(:, 8) - 273.15, 'b--', 'DisplayName', 'B4 (Res)', 'LineWidth', 3);
+plot(t_sol/3600, x_sol(:, 4) - 273.15, 'b', 'DisplayName', 'B2 (Res)', 'LineWidth', 3);
+plot(t_sol/3600, x_sol(:, 6) - 273.15, 'g', 'DisplayName', 'B3 (Office)', 'LineWidth', 3);
+plot(t_sol/3600, x_sol(:, 8) - 273.15, 'm', 'DisplayName', 'B4 (Res)', 'LineWidth', 3);
 title('Building Temperatures', 'FontSize', 14);
 xlabel('Time (hr)', 'FontSize', 14); 
 ylabel('Temp (C)', 'FontSize', 14);
@@ -107,16 +108,16 @@ legend('FontSize', 14);
 grid on;
 
 % Radiator temperature
-subplot(2,2,4);
+subplot(2,1,2);
 T_rad_1 = x_sol(:,3) - 273.15;
 T_rad_2 = x_sol(:,5) - 273.15;
 T_rad_3 = x_sol(:,7) - 273.15;
 T_rad_4 = x_sol(:,9) - 273.15;
 plot(t_sol/3600, T_rad_1, 'r', 'DisplayName', 'Radiator B1 (Office', 'LineWidth', 3);
 hold on
-plot(t_sol/3600, T_rad_2, 'r', 'DisplayName', 'Radiator B2 (Res)', 'LineWidth', 3);
-plot(t_sol/3600, T_rad_3, 'b--', 'DisplayName', 'Radiator B3 (Office)', 'LineWidth', 3);
-plot(t_sol/3600, T_rad_4, 'b--', 'DisplayName', 'Radiator B4 (Res)', 'LineWidth', 3);
+plot(t_sol/3600, T_rad_2, 'b', 'DisplayName', 'Radiator B2 (Res)', 'LineWidth', 3);
+plot(t_sol/3600, T_rad_3, 'g', 'DisplayName', 'Radiator B3 (Office)', 'LineWidth', 3);
+plot(t_sol/3600, T_rad_4, 'm', 'DisplayName', 'Radiator B4 (Res)', 'LineWidth', 3);
 title('Radiator Temperatures', 'FontSize', 14);
 xlabel('Time (hr)', 'FontSize', 14); 
 ylabel('Temp (C)', 'FontSize', 14);
@@ -125,7 +126,7 @@ legend('FontSize', 14)
 grid on;
 
 % Plotting reservoir height and mech. power
-figure(2)
+figure(3)
 subplot(2,1,1);
 plot(t_sol/3600, x_sol(:, 11), 'DisplayName', 'Reservoir height', 'LineWidth', 3);
 title('Reservoir Height', 'FontSize', 14);
@@ -161,7 +162,7 @@ time_indices = round(linspace(1, length(times_sec), num_time_points));
 selected_times_hr = times_sec(time_indices) / 3600; 
 
 % Plotting
-figure(3);
+figure(4);
 hold on; 
 
 for i = 2:num_time_points
@@ -190,7 +191,7 @@ end
 ylim(y_limits); 
 
 %% =================================================================
-%  ORCHESTRATOR FUNCTION FOR COMPLETE MODEL
+%  Function for complete model
 % x_total = [
 %   x(1)       % T_LUMI      
 %
@@ -216,7 +217,7 @@ ylim(y_limits);
 % ]
 function x_dot = complete_dynamics(t, x_total, params)
     
-    % Unpacking super state vector
+    % Unpacking state vector
     T_lumi = x_total(1);
     
     T_B1 = x_total(2);
@@ -239,16 +240,16 @@ function x_dot = complete_dynamics(t, x_total, params)
     
     % Calculating coupling equations
     
-    % PUMP & PIPE COUPLING 
+    % Pump & pipe coupling 
     omega_pump = Vm / params.K_dh_motor;
     w_dh = params.k_pump * omega_pump;
     
-    % LUMI & PIPE COUPLING 
+    % Lumi & pipe coupling 
     T_dh_return = T_pipe(end);
     Q_ex_lumi = (T_lumi - T_dh_return) / params.R_ex_lumi;
     T_dh_inlet = T_dh_return + Q_ex_lumi / (w_dh * params.rho_w * params.cp + 1e-3);
 
-    % BUILDING & PIPE COUPLING (HEAT SINKS) 
+    % Building & pipe coupling (heat sinks) 
     T_pipe_B1 = T_pipe(params.pipe_nodes.B1);
     T_pipe_B2 = T_pipe(params.pipe_nodes.B2);
     T_pipe_B3 = T_pipe(params.pipe_nodes.B3);
@@ -266,7 +267,7 @@ function x_dot = complete_dynamics(t, x_total, params)
     Q_sinks_vec(params.pipe_nodes.B3) = Q_sink_B3;
     Q_sinks_vec(params.pipe_nodes.B4) = Q_sink_B4;
     
-    % SUPERVISOR LOGIC 
+    % Supervisor logic 
     pump_B_state = params.SIM.Pump_B_State;
     pump_Sp_state = params.SIM.Pump_Sp_State;
     

@@ -15,7 +15,7 @@ inputs.w_in = [1.8 1.2];
 
 % Run simulation
 [t_sol, x_sol] = ...
-    ode45(@(t, x) SystemDynamics.reservoir_dynamics(t, x, params, inputs), t_span, x0);
+    ode15s(@(t, x) SystemDynamics.reservoir_dynamics(t, x, params, inputs), t_span, x0);
 
 % Post-process, calculate outputs
 h_sol = x_sol(:, 1);

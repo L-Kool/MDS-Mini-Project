@@ -26,8 +26,8 @@ function params = ImportParameters ()
     params.R_wall_ij = 0.02;
     
     % Pump & Circuit parameters
-    params.R_dh_flow = 1e7; %1e7;
-    params.k_pump = 2e-4; %6e-4 1e-3
+    params.R_dh_flow = 1e7; 
+    params.k_pump = 2e-4;
     params.K_dh_motor = 3.8;
     params.R_dh_motor = 0.6;
     params.C_dh_motor = 1e-3;
